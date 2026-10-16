@@ -1,11 +1,13 @@
 from fastapi import FastAPI,Depends,HTTPException
+from fastapi.security import HTTPBearer
 from pwdlib import PasswordHash
 import jwt
 import secrets
 from dotenv import load_dotenv
 import os
-from fastapi.security import HTTPBearer
+import asyncio
 from datetime import datetime,timedelta,timezone
+from time import time
 from models import Base,Student,Course
 from schemas import StudentCreate,CourseCreate,Login
 from database import SessionLocal,engine
@@ -161,9 +163,31 @@ def login(data:Login,db=Depends(get_db)):
     return {"message":"login successful","access_token":token}
 
 
+@app.get("/task/")
+async def task():
+    print("task started")
+
+    await asyncio.sleep(10)
+
+    print("task completed")
+
+    return {"msg":"task completed"}
+
+@app.get("/fast/")
+async def fast():
+    print("fast started")
+    return "fast completed"
 
 
+"""creating custom middleware"""
 
+@app.middleware("http")
+async def time_calculator(request,call_next):
+    ST=time()
+    response=await call_next(request)
+    ET=time()
+    print("time",ET-ST)
+    return response
 
 
      
